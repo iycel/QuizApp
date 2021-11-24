@@ -1,6 +1,6 @@
 <!-- Please update value in the {}  -->
 
-<h1 align="center">Flight Reservation App</h1>
+<h1 align="center">Quiz App</h1>
 
 
 <div align="center">
@@ -20,10 +20,10 @@
 
 ## Table of Contents
 
+- [Table of Contents](#table-of-contents)
 - [Overview](#overview)
-- [Built With](#built-with)
-- [Features](#features)
-- [How to use](#how-to-use)
+  - [Built With](#built-with)
+- [How To Use](#how-to-use)
 - [Acknowledgements](#acknowledgements)
 - [Contact](#contact)
 
