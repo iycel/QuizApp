@@ -1,11 +1,17 @@
 from django.db import models
-from django.db.models.fields.reverse_related import ManyToOneRel
 
 class QuizAppCategory(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        verbose_name_plural = "Categories"
+
+    @property
+    def quiz_count(self):
+        return self.quiz_set.count()
 
 class QuizApp(models.Model):
     title = models.CharField(max_length=100)
@@ -15,8 +21,21 @@ class QuizApp(models.Model):
     def __str__(self):
         return f'{self.title} | {self.category}'
 
-class QuizAppQuestion(models.Model):
-    title = models.TextField()
+    class Meta:
+        verbose_name_plural = "Quizs"
+
+    @property
+    def question_count(self):
+        return self.question_set.count()
+
+class QuizUpdate(models.Model):
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta :
+        abstract = True
+
+class QuizAppQuestion(QuizUpdate):
+    title = models.CharField(max_length=300, verbose_name="question")
     updated = models.DateTimeField(auto_now=True)
 
     DIFFICULT = {
@@ -30,12 +49,19 @@ class QuizAppQuestion(models.Model):
     quiz = models.ForeignKey(QuizApp, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.title} | {self.difficulty} | {self.quiz}'
+        return f'{self.title}'
 
-class QuizAppAnswer(models.Model):
-    updated = models.DateTimeField(auto_now=True)
-    anwser_text = models.TextField()
+    class Meta:
+        verbose_name_plural = "Questions"
+
+class QuizAppAnswer(QuizUpdate):
+    answer_text = models.CharField(max_length=300)
     is_right = models.BooleanField()
-    question = models.ForeignKey(QuizAppQuestion, on_delete=models.CASCADE)
+    question = models.ForeignKey(QuizAppQuestion, on_delete=models.CASCADE, related_name='answer')
 
+    def __str__(self):
+        return f'{self.answer_text} | {self.question}'
+
+    class Meta:
+        verbose_name_plural = "Answers"
     
