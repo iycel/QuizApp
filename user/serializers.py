@@ -1,7 +1,8 @@
 from rest_framework import serializers, validators
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password  # passwordun validate olması için import ettik
-
+from django.contrib.auth.hashers import make_password
+from dj_rest_auth.serializers import TokenSerializer  
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True, validators=[validators.UniqueValidator(queryset=User.objects.all())])
     username = serializers.CharField(required=True, validators=[validators.UniqueValidator(queryset=User.objects.all())])  # username unique olması için
@@ -33,6 +34,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         validated_data.pop('password2') # validated_data dan pop modeli ile password2 yi çıkarıyoruz
         user = User.objects.create(**validated_data)  # validated_datadan userimizi create ettik
         user.set_password(password) # passwordlarımız database e açık bir şekilde yazamıyoruz. Hash lenerek yazıyoruz. O yüzden user create ederken password ü ayrı set etmemiz lazım.
+        # user.password = make_password(password)  buda yazılabilir
         user.save()
         return user
 
@@ -40,3 +42,19 @@ class RegisterSerializer(serializers.ModelSerializer):
         if data['password'] != data['password2']:
             raise serializers.ValidationError({'Password fields did not match'})
         return data
+
+class UserTokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'email',
+            'first_name',
+            'last_name'
+        )
+class CustomTokenSerializer(TokenSerializer):
+    user = UserTokenSerializer(read_only=True)
+    class Meta(TokenSerializer.Meta) :
+        fields = (
+            'key', 'user'
+        )
